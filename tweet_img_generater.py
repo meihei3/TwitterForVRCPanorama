@@ -20,6 +20,8 @@ FONT_SIZE = 17
 FONT_DIR = "static/fonts/"
 IPAEXG_FONT = ImageFont.truetype(FONT_DIR+"ipaexg.ttf", FONT_SIZE)
 SYMBOLA_FONT = ImageFont.truetype(FONT_DIR+"Symbola_hint.ttf", FONT_SIZE)
+IPAEXG_FONT_M = ImageFont.truetype(FONT_DIR+"ipaexg.ttf", FONT_SIZE-2)
+SYMBOLA_FONT_M = ImageFont.truetype(FONT_DIR+"Symbola_hint.ttf", FONT_SIZE-2)
 FONT_COLOR = (0, 0, 0)
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
@@ -101,7 +103,8 @@ def parse_text(text, wrap=16):
     return parsed_text
 
 
-def create_text_image(draw, text, offset=(6, 76), wrap=16):
+def create_text_image(draw, text, offset=(6, 76), wrap=16, font_color=FONT_COLOR, font_size=FONT_SIZE,
+                      text_font=IPAEXG_FONT, text_emoji_font=SYMBOLA_FONT):
     """
     :param draw: ImageDrawインスタンス
     :param text: tweetのメインのtext
@@ -112,16 +115,18 @@ def create_text_image(draw, text, offset=(6, 76), wrap=16):
     for i, line in enumerate(parse_text(text, wrap)):
         width = 0
         for part in line:
-            x, y = offset[0] + width * FONT_SIZE, offset[1] + i * FONT_SIZE
+            x, y = offset[0] + width * font_size, offset[1] + i * font_size
             if part["type"] in (TextType.ASCII, TextType.JAPANESE):
-                draw.text((x, y), part["data"], fill=FONT_COLOR, font=IPAEXG_FONT)
+                draw.text((x, y), part["data"], fill=font_color, font=text_font)
             else:
-                draw.text((x, y), part["data"], fill=FONT_COLOR, font=SYMBOLA_FONT)
+                draw.text((x, y), part["data"], fill=font_color, font=text_emoji_font)
             width += part["size"]
 
 
 def create_tweet_text(tweet_id):
     """
+    create 300x300 image from tweet
+
     :param tweet_id: (str) tweet id
     :return: None
     """
@@ -149,5 +154,30 @@ def create_tweet_text(tweet_id):
     im.save(TEXT_IMG_DIR + tweet_id + ".jpg")
 
 
+def create_timeline_tweet_text(tweet_id):
+    # get tweet data
+    tweet = api.get_status(str(tweet_id))
+    user_name, user_id, user_img_url = tweet.user.name, tweet.user.screen_name, tweet.user.profile_image_url
+    text = tweet.text
+
+    # -- create image --
+    im = Image.new("RGB", (400, 100), "white")
+    # profile image
+    im.paste(Image.open(io.BytesIO(requests.get(user_img_url).content)), (6, 6))
+
+    draw = ImageDraw.Draw(im)
+    # user name
+    draw.text((66, 6), user_name, fill=(0, 0, 0), font=ImageFont.truetype(FONT_DIR+"ipaexg.ttf", 15))
+
+    # tweet text
+    create_text_image(draw, text, offset=(66, 36), wrap=21, font_size=15,
+                      text_font=IPAEXG_FONT_M, text_emoji_font=SYMBOLA_FONT_M)
+
+    # save
+    if not os.path.exists(TEXT_IMG_DIR):
+        os.mkdir(TEXT_IMG_DIR)
+    im.save(TEXT_IMG_DIR + tweet_id + ".jpg")
+
+
 if __name__ == '__main__':
-    create_tweet_text("1093111698297282561")
+    create_timeline_tweet_text("1093111698297282561")
