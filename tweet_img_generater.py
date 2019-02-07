@@ -5,12 +5,12 @@ from enum import Enum
 import os
 import regex
 import requests
-import tweepy
 from PIL import ImageFont, ImageDraw, Image
 
-from config import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN_SECRET, ACCESS_TOKEN
+from twitter_api import tweet_from_id
 
-TEXT_IMG_DIR = "./text/"
+TEXT_STATUS_IMG_DIR = "./text/status/"
+TEXT_TIMELINE_IMG_DIR = "./text/timeline/"
 
 ASCII_CHARACTER = re.compile("[ -~]")
 JPCHAR = "〜～ー＠＃＄％＾＆＊（）｛｝「」＜＞｜￥・！？｀、。＝＋＿ω"
@@ -23,11 +23,6 @@ SYMBOLA_FONT = ImageFont.truetype(FONT_DIR+"Symbola_hint.ttf", FONT_SIZE)
 IPAEXG_FONT_M = ImageFont.truetype(FONT_DIR+"ipaexg.ttf", FONT_SIZE-2)
 SYMBOLA_FONT_M = ImageFont.truetype(FONT_DIR+"Symbola_hint.ttf", FONT_SIZE-2)
 FONT_COLOR = (0, 0, 0)
-
-auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-
-api = tweepy.API(auth)
 
 
 class TextType(Enum):
@@ -131,7 +126,7 @@ def create_tweet_text(tweet_id):
     :return: None
     """
     # get tweet data
-    tweet = api.get_status(str(tweet_id))
+    tweet = tweet_from_id(tweet_id)
     user_name, user_id, user_img_url = tweet.user.name, tweet.user.screen_name, tweet.user.profile_image_url
     text = tweet.text
 
@@ -149,14 +144,14 @@ def create_tweet_text(tweet_id):
     create_text_image(draw, text)
 
     # save
-    if not os.path.exists(TEXT_IMG_DIR):
-        os.mkdir(TEXT_IMG_DIR)
-    im.save(TEXT_IMG_DIR + tweet_id + ".jpg")
+    if not os.path.exists(TEXT_STATUS_IMG_DIR):
+        os.mkdir(TEXT_STATUS_IMG_DIR)
+    im.save(TEXT_STATUS_IMG_DIR + tweet_id + ".jpg")
 
 
 def create_timeline_tweet_text(tweet_id):
     # get tweet data
-    tweet = api.get_status(str(tweet_id))
+    tweet = tweet_from_id(tweet_id)
     user_name, user_id, user_img_url = tweet.user.name, tweet.user.screen_name, tweet.user.profile_image_url
     text = tweet.text
 
@@ -174,9 +169,9 @@ def create_timeline_tweet_text(tweet_id):
                       text_font=IPAEXG_FONT_M, text_emoji_font=SYMBOLA_FONT_M)
 
     # save
-    if not os.path.exists(TEXT_IMG_DIR):
-        os.mkdir(TEXT_IMG_DIR)
-    im.save(TEXT_IMG_DIR + tweet_id + ".jpg")
+    if not os.path.exists(TEXT_TIMELINE_IMG_DIR):
+        os.mkdir(TEXT_TIMELINE_IMG_DIR)
+    im.save(TEXT_TIMELINE_IMG_DIR + tweet_id + ".jpg")
 
 
 if __name__ == '__main__':
