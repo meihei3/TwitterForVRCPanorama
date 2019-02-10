@@ -1,7 +1,7 @@
 import tweepy
 from functools import lru_cache
 
-from config import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN_SECRET, ACCESS_TOKEN
+from keys import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN_SECRET, ACCESS_TOKEN
 
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)

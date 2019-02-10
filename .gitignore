@@ -148,7 +148,10 @@ Temporary Items
 .apdisk
 
 # pass and keys
-config.py
+keys.py
 
 # Intellij
 *.iml
+
+# images
+*.jpg

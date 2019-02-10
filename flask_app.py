@@ -4,7 +4,7 @@ import time
 from flask import Flask, send_from_directory, abort
 import pickle as pk
 
-from utils import access, is_accessible_timeline, clear_access_log, get_tweet_id
+from utils import get_tweet_id
 from tweet_img_generater import create_tweet_text, create_timeline_tweet_text
 from twitter_api import get_tl_id
 
