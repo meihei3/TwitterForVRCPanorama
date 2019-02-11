@@ -5,24 +5,12 @@ from enum import Enum
 import os
 import regex
 import requests
-from PIL import ImageFont, ImageDraw, Image
+from PIL import ImageDraw, Image
 
+from config import TEXT_STATUS_IMG_DIR, TEXT_TIMELINE_IMG_DIR, USER_NAME_FONT_M, USER_NAME_FONT, SCREEN_NAME_FONT, \
+    TWEET_SYMBOLA_FONT, TWEET_IPAEXG_FONT, TWEET_SYMBOLA_FONT_M, TWEET_IPAEXG_FONT_M, ASCII_CHARACTER, \
+    JAPANESE_CHARACTER
 from twitter_api import tweet_from_id
-
-TEXT_STATUS_IMG_DIR = "./text/status/"
-TEXT_TIMELINE_IMG_DIR = "./text/timeline/"
-
-ASCII_CHARACTER = re.compile("[ -~]")
-JPCHAR = "〜～ー＠＃＄％＾＆＊（）｛｝「」＜＞｜￥・！？｀、。＝＋＿ω"
-JAPANESE_CHARACTER = regex.compile("[\p{Hiragana}\p{Katakana}\p{Han}%s]" % JPCHAR)
-
-FONT_SIZE = 17
-FONT_DIR = "static/fonts/"
-IPAEXG_FONT = ImageFont.truetype(FONT_DIR+"ipaexg.ttf", FONT_SIZE)
-SYMBOLA_FONT = ImageFont.truetype(FONT_DIR+"Symbola_hint.ttf", FONT_SIZE)
-IPAEXG_FONT_M = ImageFont.truetype(FONT_DIR+"ipaexg.ttf", FONT_SIZE-2)
-SYMBOLA_FONT_M = ImageFont.truetype(FONT_DIR+"Symbola_hint.ttf", FONT_SIZE-2)
-FONT_COLOR = (0, 0, 0)
 
 
 class TextType(Enum):
@@ -98,8 +86,8 @@ def parse_text(text, wrap=16):
     return parsed_text
 
 
-def create_text_image(draw, text, offset=(6, 76), wrap=16, font_color=FONT_COLOR, font_size=FONT_SIZE,
-                      text_font=IPAEXG_FONT, text_emoji_font=SYMBOLA_FONT):
+def create_text_image(draw, text, offset=(6, 76), wrap=16, text_font=TWEET_IPAEXG_FONT,
+                      text_emoji_font=TWEET_SYMBOLA_FONT):
     """
     :param draw: ImageDrawインスタンス
     :param text: tweetのメインのtext
@@ -110,11 +98,11 @@ def create_text_image(draw, text, offset=(6, 76), wrap=16, font_color=FONT_COLOR
     for i, line in enumerate(parse_text(text, wrap)):
         width = 0
         for part in line:
-            x, y = offset[0] + width * font_size, offset[1] + i * font_size
+            x, y = offset[0] + width * text_font.SIZE, offset[1] + i * text_font.SIZE
             if part["type"] in (TextType.ASCII, TextType.JAPANESE):
-                draw.text((x, y), part["data"], fill=font_color, font=text_font)
+                draw.text((x, y), part["data"], fill=text_font.COLOR, font=text_font.FONT)
             else:
-                draw.text((x, y), part["data"], fill=font_color, font=text_emoji_font)
+                draw.text((x, y), part["data"], fill=text_emoji_font.COLOR, font=text_emoji_font.FONT)
             width += part["size"]
 
 
@@ -137,9 +125,9 @@ def create_tweet_text(tweet_id):
 
     draw = ImageDraw.Draw(im)
     # user name
-    draw.text((66, 6), user_name, fill=(0, 0, 0), font=ImageFont.truetype(FONT_DIR+"ipaexg.ttf", 20))
+    draw.text((66, 6), user_name, fill=USER_NAME_FONT.COLOR, font=USER_NAME_FONT.FONT)
     # screen name
-    draw.text((66, 36), '@'+user_id, fill=(30, 30, 30), font=ImageFont.truetype(FONT_DIR+"ipaexg.ttf", 15))
+    draw.text((66, 36), '@'+user_id, fill=SCREEN_NAME_FONT.COLOR, font=SCREEN_NAME_FONT.FONT)
     # tweet text
     create_text_image(draw, text)
 
@@ -162,11 +150,11 @@ def create_timeline_tweet_text(tweet_id):
 
     draw = ImageDraw.Draw(im)
     # user name
-    draw.text((66, 6), user_name, fill=(0, 0, 0), font=ImageFont.truetype(FONT_DIR+"ipaexg.ttf", 15))
+    draw.text((66, 6), user_name, fill=USER_NAME_FONT_M.COLOR, font=USER_NAME_FONT_M.FONT)
 
     # tweet text
-    create_text_image(draw, text, offset=(66, 36), wrap=21, font_size=15,
-                      text_font=IPAEXG_FONT_M, text_emoji_font=SYMBOLA_FONT_M)
+    create_text_image(draw, text, offset=(66, 36), wrap=21,
+                      text_font=TWEET_IPAEXG_FONT_M, text_emoji_font=TWEET_SYMBOLA_FONT_M)
 
     # save
     if not os.path.exists(TEXT_TIMELINE_IMG_DIR):

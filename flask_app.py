@@ -1,16 +1,12 @@
 import os
 
-import time
 from flask import Flask, send_from_directory, abort
 import pickle as pk
 
+from config import TMP_FILE, TEXT_STATUS_IMG_DIR, TEXT_TIMELINE_IMG_DIR
 from utils import get_tweet_id
 from tweet_img_generater import create_tweet_text, create_timeline_tweet_text
 from twitter_api import get_tl_id
-
-TEXT_STATUS_IMG_DIR = "./text/status/"
-TEXT_TIMELINE_IMG_DIR = "./text/timeline/"
-TMP_FILE = "timeline.tmp"
 
 app = Flask(__name__)
 
