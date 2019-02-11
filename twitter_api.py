@@ -18,3 +18,16 @@ def tweet_from_id(tweet_id: str):
 def get_tl_id(cnt=10):
     return [tw.id_str for tw in api.home_timeline(count=cnt)]
 
+
+def retweet(tweet_id: str):
+    return api.retweet(str(tweet_id))
+
+
+def favorite(tweet_id: str):
+    return api.create_favorite(str(tweet_id))
+
+
+if __name__ == '__main__':
+    # print(retweet("1094863090003304449"))
+    # print(favorite("1094863090003304449"))
+    print(tweet_from_id("1094863090003304449").favorited)

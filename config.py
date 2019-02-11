@@ -14,6 +14,7 @@ class FontData:
 TEXT_STATUS_IMG_DIR = "./text/status/"
 TEXT_TIMELINE_IMG_DIR = "./text/timeline/"
 FONT_DIR = "static/fonts/"
+IMAGE_DIR = "static/img/"
 
 # filename
 TMP_FILE = "timeline.tmp"
